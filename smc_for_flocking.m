@@ -53,7 +53,7 @@ function [px,py,pvx,pvy,mc_fit] = smc_for_flocking()
         end
         if min(fit_level)<best_fit
             if ahead>1 
-                ahead = ahead - 1; 
+                ahead = 1; %ahead = ahead - 1; 
             end
             best_fit = min(fit_level);
             mc_fit(:,level) = fit_level;
