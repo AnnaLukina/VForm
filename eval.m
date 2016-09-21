@@ -6,16 +6,22 @@ allLowest = zeros(0,0);
 % numLevels = 20; %each step is level?
 
 for i = 1:numel(allfields)
+    px = s.(char(allfields(i))){1};
+    py = s.(char(allfields(i))){2};
+    pvx = s.(char(allfields(i))){3};
+    pvy = s.(char(allfields(i))){4};
     fit = s.(char(allfields(i))){5}; %=mc_fit
+    r = s.(char(allfields(i))){6};
+    aheads = s.(char(allfields(i))){7};
+    
     steps = numel(fit(1,:))-sum(all(fit==0,1));
     fit(:,all(fit==0,1))=[];
     lowest = min(fit(:,numel(fit(1,:))));
     allsteps = [allsteps; steps];
     allLowest = [allLowest; lowest];
-    px = s.(char(allfields(i))){1};
-    py = s.(char(allfields(i))){2};
-    pvx = s.(char(allfields(i))){3};
-    pvy = s.(char(allfields(i))){4};
+    
+    
+    
     
     getIndex = find(fit(:,end)==lowest);
     

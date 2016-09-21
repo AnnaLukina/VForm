@@ -71,7 +71,7 @@ for i=1:size(x,2)
         newX(i) = x(i);
         newY(i) = y(i);
     else
-        disp('trim');
+        %disp('trim');
         theta = atan2(y(i),x(i));
         newX(i) = max(i)*cos(theta);
         newY(i) = max(i)*sin(theta);
