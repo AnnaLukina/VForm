@@ -6,7 +6,7 @@ allLowest = zeros(0,0);
 % numLevels = 20; %each step is level?
 
 aheads = zeros(0,0);
-
+reasons = zeros(0,0);
 
 for i = 1:numel(allfields)
     px = s.(char(allfields(i))){1};
@@ -17,7 +17,13 @@ for i = 1:numel(allfields)
     r = s.(char(allfields(i))){6};
     a = s.(char(allfields(i))){7};
     
-    aheads = [aheads; a];
+    %aheads = [aheads; a];
+    if(numel(r) > 1)
+        reasons = [reasons; r(1)];
+    else
+        
+        reasons = [reasons; 'o'];
+    end
     
     steps = numel(fit(1,:))-sum(all(fit==0,1));
     fit(:,all(fit==0,1))=[];

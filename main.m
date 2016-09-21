@@ -1,6 +1,6 @@
 clear all;
 
-numberConfs = 50;
+numberConfs = 100;
 
 s = struct();
 

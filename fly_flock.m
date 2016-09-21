@@ -5,7 +5,7 @@ nvars = Numb*2;
 last_fit = best_fit;
 improved = 0;
 
-options = optimoptions('particleswarm','SwarmSize', 10,'UseParallel',false,'display','none');
+options = optimoptions('particleswarm','SwarmSize', 20,'UseParallel',false,'display','none');
 
 %for t=1:K
 %     disp_flock(x(t,:),y(t,:),vx(t,:),vy(t,:));
