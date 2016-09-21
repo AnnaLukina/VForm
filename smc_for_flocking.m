@@ -36,7 +36,7 @@ function [px,py,pvx,pvy,mc_fit] = smc_for_flocking()
     ahead = 1;
 
     tic
-    while best_fit>stop && level<numLevels %&& ahead<numLevels
+    while best_fit>stop && level<numLevels && ahead<numLevels
         for p=1:numPart
     %         ind = find(px{p}==0,1)-1
             x = px{p}(end,:);
@@ -80,36 +80,7 @@ function [px,py,pvx,pvy,mc_fit] = smc_for_flocking()
                 fit_level(bad_pos(r)) = fit_level(top_pos(pos));
             end
             tic
-        else
-            if ahead > maxAhead %we reached max aheed
-                if (sum(improved) >= numPart*.2) % some configs have improved and we resample
-                    'resampling'
-                    ahead = 1;
-                    % resample bad particles from top positions
-                    [sort_fit,sort_ind]= sort(fit_level,'ascend');
-                    L=numPart*precision; % number of configurations we keep = configurations that improved
-                    top_pos = sort_ind(1:L);
-                    bad_pos = sort_ind(L+1:numPart);
-
-                    for r=1:numPart-L
-                        % sample from top positionsm
-                        pos = randi(length(top_pos));
-                        % assign a random top position to a bad one
-                        px{bad_pos(r)} = [px{bad_pos(r)}; px{top_pos(pos)}(end,:)];
-                        py{bad_pos(r)} = [py{bad_pos(r)}; py{top_pos(pos)}(end,:)];
-                        pvx{bad_pos(r)} = [pvx{bad_pos(r)}; pvx{top_pos(pos)}(end,:)];
-                        pvy{bad_pos(r)} = [pvy{bad_pos(r)}; pvy{top_pos(pos)}(end,:)];
-                        level_dist(bad_pos(r)) = level_dist(top_pos(pos));
-                        fit_level(bad_pos(r)) = fit_level(top_pos(pos));
-                    end
-                else %not enough have improved. what now?
-                    'no improvement'
-                    break;
-                end
-            else 
-                
-                ahead = ahead + 1
-            end
+        else ahead = ahead + 1 
         end
     end
 end
