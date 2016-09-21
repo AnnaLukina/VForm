@@ -115,13 +115,13 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads] = smc_for_flocking()
         end
     end
     
-    if(best_fit>stop)
+    if(best_fit<stop)
         reason = 'best';
     end
-    if(level<numLevels)
+    if(level>numLevels)
         reason = 'level';
     end
-    if(ahead<numLevels)
+    if(ahead>numLevels)
         reason = 'ahead';
     end
 end

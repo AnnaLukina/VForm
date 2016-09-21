@@ -5,6 +5,9 @@ allLowest = zeros(0,0);
 % numPart = 10;
 % numLevels = 20; %each step is level?
 
+aheads = zeros(0,0);
+
+
 for i = 1:numel(allfields)
     px = s.(char(allfields(i))){1};
     py = s.(char(allfields(i))){2};
@@ -12,7 +15,9 @@ for i = 1:numel(allfields)
     pvy = s.(char(allfields(i))){4};
     fit = s.(char(allfields(i))){5}; %=mc_fit
     r = s.(char(allfields(i))){6};
-    aheads = s.(char(allfields(i))){7};
+    a = s.(char(allfields(i))){7};
+    
+    aheads = [aheads; a];
     
     steps = numel(fit(1,:))-sum(all(fit==0,1));
     fit(:,all(fit==0,1))=[];
