@@ -1,5 +1,5 @@
 %% importance splitting
-function [px,py,pvx,pvy,mc_fit,reason,aheads] = smc_for_flocking()
+function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
     global x y vx vy ahead Numb
     rng('shuffle');
     Numb = 7; % number of birds in a flock
@@ -21,6 +21,8 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads] = smc_for_flocking()
     py = cell(numPart,1);
     pvx = cell(numPart,1);
     pvy = cell(numPart,1);
+    resA = 0;
+    resL = 0;
     improved = zeros(numPart,1);
     precision = .5;
     best_fit = Inf; % best fit among all the particles
@@ -68,7 +70,8 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads] = smc_for_flocking()
             L=numPart*precision;
             top_pos = sort_ind(1:L);
             bad_pos = sort_ind(L+1:numPart);
-
+            resL = resL + 1;
+            
             for r=1:numPart-L
                 % sample from top positionsm
                 pos = randi(length(top_pos));
@@ -86,7 +89,8 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads] = smc_for_flocking()
         else
              if ahead > maxAhead %we reached max aheed
                 if (sum(improved) >= numPart*.2) % some configs have improved and we resample
-                   'resampling'
+                    'resampling'
+                    resA = resA + 1;
                     ahead = 1;
                     % resample bad particles from top positions
                     [sort_fit,sort_ind]= sort(fit_level,'ascend');
