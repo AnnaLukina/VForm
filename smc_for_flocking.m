@@ -58,7 +58,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
         if min(fit_level)<best_fit
             aheads(level) = ahead;
             if ahead>1 
-                ahead = 1; %ahead = ahead - 1; 
+                ahead = ahead - 1; %ahead = 1; %
             end
             best_fit = min(fit_level);
             mc_fit(:,level) = fit_level;
@@ -89,6 +89,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
         else
              if ahead > maxAhead %we reached max aheed
                 if (sum(improved) >= numPart*.2) % some configs have improved and we resample
+                    aheads(level) = ahead;
                     'resampling'
                     resA = resA + 1;
                     ahead = 1;
