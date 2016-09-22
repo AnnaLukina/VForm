@@ -1,5 +1,5 @@
 %% importance splitting
-function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
+function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flocking()
     global x y vx vy ahead Numb
     rng('shuffle');
     Numb = 7; % number of birds in a flock
@@ -12,6 +12,16 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
     numPart = 20; % number of particles
     numLevels = 20; % total number of levels
     maxAhead = 10; % number of maximum lookaheads before we resample if we couldnt find a new  level
+    
+    fixedPSOParticles = true;
+    currentPSOParticles = 20;
+    
+    startPSOParticles = 10;
+    endPSOParticles = 30;
+    incrementPSOParticles = 5;
+    PSOInc = 0;
+    
+    
     reason = '';
     fit_level = zeros(numPart,1); % fitness levels for each particle
     level_dist = zeros(numPart,1); % distance between the levels
@@ -39,6 +49,10 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
     clock = 0;
     ahead = 1;
 
+    if(~fixedPSOParticles)
+        currentPSOParticles = startPSOParticles;
+    end
+    
     tic
     while best_fit>stop && level<numLevels && ahead<numLevels
         for p=1:numPart
@@ -47,7 +61,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
             y = py{p}(end,:);
             vx = pvx{p}(end,:);
             vy = pvy{p}(end,:);
-            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p));
+            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p),currentPSOParticles);
             if level==1 || improved(p)       
                 px{p} = [px{p}; x];
                 py{p} = [py{p}; y];
@@ -75,8 +89,6 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
             for r=1:numPart-L
                 % sample from top positionsm
                 pos = randi(length(top_pos));
-    %             top_ind = find(px{top_pos(pos)}==0,1)-1;
-    %             bad_ind = find(px{bad_pos(r)}==0,1)-1;
                 % assign a random top position to a bad one
                 px{bad_pos(r)} = [px{bad_pos(r)}; px{top_pos(pos)}(end,:)];
                 py{bad_pos(r)} = [py{bad_pos(r)}; py{top_pos(pos)}(end,:)];
@@ -111,7 +123,19 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA, resL] = smc_for_flocking()
                     end
                 else %not enough have improved. what now?
                     disp('no improvement');
-                    break;
+                    
+                    if(fixedPSOParticles)
+                        break;
+                    else
+                        dips('pso increase and startover');
+                        
+                        ahead = 1;
+                        currentPSOParticles = currentPSOParticles + incrementPSOParticles;
+                        PSOInc = PSOInc + 1;
+                        %load last good level!
+                        
+                    end
+                    
                 end
             else 
                 ahead = ahead + 1

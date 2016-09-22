@@ -2,11 +2,15 @@ allfields = fieldnames(s);
 
 allsteps = zeros(0,0);
 allLowest = zeros(0,0);
+allPsoInc = zeros(0,0);
+allTimes = zeros(0,0);
+
 % numPart = 10;
 % numLevels = 20; %each step is level?
 
 aheads = zeros(0,0);
 reasons = zeros(0,0);
+
 
 for i = 1:numel(allfields)
     px = s.(char(allfields(i))){1};
@@ -16,6 +20,8 @@ for i = 1:numel(allfields)
     fit = s.(char(allfields(i))){5}; %=mc_fit
     r = s.(char(allfields(i))){6};
     a = s.(char(allfields(i))){7};
+    psoInc = s.(char(allfields(i))){8};
+    time = s.(char(allfields(i))){9};
     
     %aheads = [aheads; a];
     if(numel(r) > 1)
@@ -31,7 +37,8 @@ for i = 1:numel(allfields)
     allsteps = [allsteps; steps];
     allLowest = [allLowest; lowest];
     
-    
+    allTimes = [allTimes; time];
+    allPsoInc = [allPsoInc; psoInc];
     
     
     getIndex = find(fit(:,end)==lowest);

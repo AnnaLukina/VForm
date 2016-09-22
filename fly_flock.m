@@ -1,11 +1,11 @@
 %% flying the flock
-    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist)
+    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist,particles)
 global x y vx vy Numb
 nvars = Numb*2;
 last_fit = best_fit;
 improved = 0;
 
-options = optimoptions('particleswarm','SwarmSize', 30,'UseParallel',false,'display','none');
+options = optimoptions('particleswarm','SwarmSize', particles,'UseParallel',false,'display','none');
 
 %for t=1:K
 %     disp_flock(x(t,:),y(t,:),vx(t,:),vy(t,:));
