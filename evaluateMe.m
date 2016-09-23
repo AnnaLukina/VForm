@@ -1,6 +1,6 @@
 allfields = fieldnames(s);
 
-allsteps = zeros(0,0);
+allLevels = zeros(0,0);
 allLowest = zeros(0,0);
 allPsoInc = zeros(0,0);
 allTimes = zeros(0,0);
@@ -13,40 +13,45 @@ reasons = zeros(0,0);
 
 
 for i = 1:numel(allfields)
-    px = s.(char(allfields(i))){1};
-    py = s.(char(allfields(i))){2};
-    pvx = s.(char(allfields(i))){3};
-    pvy = s.(char(allfields(i))){4};
-    fit = s.(char(allfields(i))){5}; %=mc_fit
-    r = s.(char(allfields(i))){6};
-    a = s.(char(allfields(i))){7};
-    psoInc = s.(char(allfields(i))){8};
-    time = s.(char(allfields(i))){9};
-    
-    %aheads = [aheads; a];
-    if(numel(r) > 1)
-        reasons = [reasons; r(1)];
-    else
-        
-        reasons = [reasons; 'o'];
+    if ~strcmp(char(allfields(i)), 'totalTime')
+        px = s.(char(allfields(i))){1};
+        py = s.(char(allfields(i))){2};
+        pvx = s.(char(allfields(i))){3};
+        pvy = s.(char(allfields(i))){4};
+        fit = s.(char(allfields(i))){5}; %=mc_fit
+        r = s.(char(allfields(i))){6};
+        a = s.(char(allfields(i))){7};
+        resA = s.(char(allfields(i))){8};
+        resL = s.(char(allfields(i))){9};
+        psoInc = s.(char(allfields(i))){10};
+        psoParticles = s.(char(allfields(i))){11};
+        time = s.(char(allfields(i))){12};
+
+        %aheads = [aheads; a];
+        if(numel(r) > 1)
+            reasons = [reasons; r(1)];
+        else
+
+            reasons = [reasons; 'o'];
+        end
+
+        levels = numel(fit(1,:))-sum(all(fit==0,1));
+        fit(:,all(fit==0,1))=[];
+        lowest = min(fit(:,numel(fit(1,:))));
+        allLevels = [allLevels; levels];
+        allLowest = [allLowest; lowest];
+
+        allTimes = [allTimes; time];
+        allPsoInc = [allPsoInc; psoInc];
+
+
+        getIndex = find(fit(:,end)==lowest);
+
+%         figure
+%         disp_flock(px{getIndex}(end,:),py{getIndex}(end,:),pvx{getIndex}(end,:),pvy{getIndex}(end,:));
+
+        numberOfPos = sum(all(allLowest<0.009,2))
     end
-    
-    steps = numel(fit(1,:))-sum(all(fit==0,1));
-    fit(:,all(fit==0,1))=[];
-    lowest = min(fit(:,numel(fit(1,:))));
-    allsteps = [allsteps; steps];
-    allLowest = [allLowest; lowest];
-    
-    allTimes = [allTimes; time];
-    allPsoInc = [allPsoInc; psoInc];
-    
-    
-    getIndex = find(fit(:,end)==lowest);
-    
-    figure
-    disp_flock(px{getIndex}(end,:),py{getIndex}(end,:),pvx{getIndex}(end,:),pvy{getIndex}(end,:));
-    
-    numberOfPos = sum(all(allLowest<0.009,2))
     
 %     for level = 1:numeLevels
 %         % fig1 = figure('position',[100 100 850 800]);

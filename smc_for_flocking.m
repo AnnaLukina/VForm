@@ -1,5 +1,5 @@
 %% importance splitting
-function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flocking()
+function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = smc_for_flocking()
     global x y vx vy ahead Numb
     rng('shuffle');
     Numb = 7; % number of birds in a flock
@@ -11,13 +11,13 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flockin
     stop = 0.009; % stopping criterion
     numPart = 20; % number of particles
     numLevels = 20; % total number of levels
-    maxAhead = 10; % number of maximum lookaheads before we resample if we couldnt find a new  level
+    maxAhead = 5; % number of maximum lookaheads before we resample if we couldnt find a new  level
     
-    fixedPSOParticles = true;
+    fixedPSOParticles = false;
     currentPSOParticles = 20;
     
     startPSOParticles = 10;
-    endPSOParticles = 30;
+    endPSOParticles = 40;
     incrementPSOParticles = 5;
     PSOInc = 0;
     
@@ -27,6 +27,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flockin
     level_dist = zeros(numPart,1); % distance between the levels
     mc_fit = zeros(numPart,numLevels);
     aheads = zeros(0,0);
+    psoParticles = zeros(0,0);
     px = cell(numPart,1);
     py = cell(numPart,1);
     pvx = cell(numPart,1);
@@ -71,6 +72,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flockin
         end
         if min(fit_level)<best_fit
             aheads(level) = ahead;
+            psoParticles(level) = currentPSOParticles;
+            if(~fixedPSOParticles)
+                currentPSOParticles = startPSOParticles; %we could learn which ones are beneficial and stick to those! or at least skip low level non-beneficial ones...
+            end
+            
             if ahead>1 
                 ahead = 1; %ahead = ahead - 1; 
             end
@@ -100,43 +106,45 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flockin
             tic
         else
              if ahead > maxAhead %we reached max aheed
-                if (sum(improved) >= numPart*.2) % some configs have improved and we resample
-                    'resampling'
-                    resA = resA + 1;
-                    ahead = 1;
-                    % resample bad particles from top positions
-                    [sort_fit,sort_ind]= sort(fit_level,'ascend');
-                    L=numPart*precision; % number of configurations we keep = configurations that improved
-                    top_pos = sort_ind(1:L);
-                    bad_pos = sort_ind(L+1:numPart);
-
-                    for r=1:numPart-L
-                        % sample from top positionsm
-                        pos = randi(length(top_pos));
-                        % assign a random top position to a bad one
-                        px{bad_pos(r)} = [px{bad_pos(r)}; px{top_pos(pos)}(end,:)];
-                        py{bad_pos(r)} = [py{bad_pos(r)}; py{top_pos(pos)}(end,:)];
-                        pvx{bad_pos(r)} = [pvx{bad_pos(r)}; pvx{top_pos(pos)}(end,:)];
-                        pvy{bad_pos(r)} = [pvy{bad_pos(r)}; pvy{top_pos(pos)}(end,:)];
-                        level_dist(bad_pos(r)) = level_dist(top_pos(pos));
-                        fit_level(bad_pos(r)) = fit_level(top_pos(pos));
-                    end
-                else %not enough have improved. what now?
+%                 if (sum(improved) >= numPart*.2) % some configs have improved and we resample
+%                     'resampling'
+%                     resA = resA + 1;
+%                     ahead = 1;
+%                     % resample bad particles from top positions
+%                     [sort_fit,sort_ind]= sort(fit_level,'ascend');
+%                     L=numPart*precision; % number of configurations we keep = configurations that improved
+%                     top_pos = sort_ind(1:L);
+%                     bad_pos = sort_ind(L+1:numPart);
+% 
+%                     for r=1:numPart-L
+%                         % sample from top positionsm
+%                         pos = randi(length(top_pos));
+%                         % assign a random top position to a bad one
+%                         px{bad_pos(r)} = [px{bad_pos(r)}; px{top_pos(pos)}(end,:)];
+%                         py{bad_pos(r)} = [py{bad_pos(r)}; py{top_pos(pos)}(end,:)];
+%                         pvx{bad_pos(r)} = [pvx{bad_pos(r)}; pvx{top_pos(pos)}(end,:)];
+%                         pvy{bad_pos(r)} = [pvy{bad_pos(r)}; pvy{top_pos(pos)}(end,:)];
+%                         level_dist(bad_pos(r)) = level_dist(top_pos(pos));
+%                         fit_level(bad_pos(r)) = fit_level(top_pos(pos));
+%                     end
+%                 else %not enough have improved. what now?
                     disp('no improvement');
                     
                     if(fixedPSOParticles)
                         break;
                     else
-                        dips('pso increase and startover');
-                        
-                        ahead = 1;
-                        currentPSOParticles = currentPSOParticles + incrementPSOParticles;
-                        PSOInc = PSOInc + 1;
+                        disp('pso increase and startover');
+                        if(currentPSOParticles < endPSOParticles)
+                            ahead = 1;
+                            currentPSOParticles = currentPSOParticles + incrementPSOParticles;
+                            PSOInc = PSOInc + 1;
+                        else
+                            disp('ALLS PSO EXHAUSTED improvement');
+                        end
                         %load last good level!
-                        
                     end
                     
-                end
+%                 end
             else 
                 ahead = ahead + 1
             end
@@ -152,7 +160,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc] = smc_for_flockin
             if(ahead>=numLevels)
                 reason = 'ahead';
             else
-                reason = 'no improv';
+                if(currentPSOParticles >= endPSOParticles)
+                    reason = 'pso exhausted'
+                else
+                    reason = 'no improv';
+                end
             end
         end
     end
