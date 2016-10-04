@@ -1,6 +1,6 @@
 %% flying the flock
-    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist,particles)
-global x y vx vy Numb
+    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist,particles,level)
+global x y vx vy Numb r_vax r_vay
 nvars = Numb*2;
 last_fit = best_fit;
 improved = 0;
@@ -53,7 +53,7 @@ options = optimoptions('particleswarm','SwarmSize', particles,'UseParallel',fals
         % check if the next level is reached
             if last_fit~=Inf && (last_fit-fitness>=level_dist)
                 last_fit = fitness;
-                level_dist = level_dist/10;
+                level_dist = ((last_fit-fitness)/level)/2; %level_dist/10;
                 improved = 1;
 %                 break;
             end

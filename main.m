@@ -1,6 +1,6 @@
 clear all;
 
-numberConfs = 1000;
+numberConfs = 50;
 
 s = struct();
 
@@ -15,4 +15,4 @@ for i = 1 : numberConfs
 end
 t = toc(total)
 s.('totalTime') = t;
-save('1000-20Par_20Lev_5ahead_LUKAS_NO-RESHUFFLE','s');
+% save('50-20Par_20Lev_5ahead_LUKAS_NO-RESHUFFLE','s');

@@ -1,6 +1,6 @@
 %% importance splitting
 function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = smc_for_flocking()
-    global x y vx vy ahead Numb
+    global x y vx vy ahead Numb r_vax r_vay
     rng('shuffle');
     Numb = 7; % number of birds in a flock
     steps = 1; 
@@ -32,6 +32,9 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     py = cell(numPart,1);
     pvx = cell(numPart,1);
     pvy = cell(numPart,1);
+    bestVAX = zeros(0,0);
+    bestVAY = zeros(0,0);
+    sorting_indices = zeros(0,0);
     resA = 0;
     resL = 0;
     improved = zeros(numPart,1);
@@ -62,12 +65,16 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             y = py{p}(end,:);
             vx = pvx{p}(end,:);
             vy = pvy{p}(end,:);
-            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p),currentPSOParticles);
+            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p),currentPSOParticles,level);
             if level==1 || improved(p)       
                 px{p} = [px{p}; x];
                 py{p} = [py{p}; y];
                 pvx{p} = [pvx{p}; vx];
                 pvy{p} = [pvy{p}; vy];
+                if fit_level(p) < best_fit
+                    bestVAX(level,:) = r_vax;
+                    bestVAY(level,:) = r_vay;
+                end
             end
         end
         if min(fit_level)<best_fit
@@ -87,6 +94,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             level = level+1;
             % resample bad particles from top positions
             [sort_fit,sort_ind]= sort(fit_level,'ascend');
+            sorting_indices = [sorting_indices sort_ind];
             L=numPart*precision;
             top_pos = sort_ind(1:L);
             bad_pos = sort_ind(L+1:numPart);
