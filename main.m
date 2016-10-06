@@ -15,4 +15,4 @@ for i = 1 : numberConfs
 end
 t = toc(total)
 s.('totalTime') = t;
-save('100-20Par_20Lev_5ahead_ANNA_1split_001','s');
+save('1000-20Par_20Lev_5ahead_ANNA_05split_0001','s');
