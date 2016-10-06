@@ -8,11 +8,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     dmin = 1; % allowed minimum distance between the birds
     [x,y,vx,vy] = flock(0,Numb,steps,init_box,dmin); %initialize the flock
     % K = 1; % steps until the next level
-    stop = 0.009; % stopping criterion
-    numPart = 20; % number of particles
+    stop = 0.0001; % stopping criterion
+    numPart = 20; % number of simulations
     numLevels = 20; % total number of levels
     maxAhead = 5; % number of maximum lookaheads before we resample if we couldnt find a new  level
-    
+    rng('shuffle');
     fixedPSOParticles = false;
     currentPSOParticles = 20;
     
@@ -38,7 +38,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     resA = 0;
     resL = 0;
     improved = zeros(numPart,1);
-    precision = .5;
+    precision = .5;%1/numPart;%.5;
     best_fit = Inf; % best fit among all the particles
     for p=1:numPart
         px{p} = x;
@@ -111,9 +111,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
                 level_dist(bad_pos(r)) = level_dist(top_pos(pos));
                 fit_level(bad_pos(r)) = fit_level(top_pos(pos));
             end
-            tic
+%             tic
         else
-             if ahead > maxAhead %we reached max aheed
+            if ahead < maxAhead 
+                ahead = ahead + 1
+            else %we reached max aheed
 %                 if (sum(improved) >= numPart*.2) % some configs have improved and we resample
 %                     'resampling'
 %                     resA = resA + 1;
@@ -147,14 +149,12 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
                             currentPSOParticles = currentPSOParticles + incrementPSOParticles;
                             PSOInc = PSOInc + 1;
                         else
-                            disp('ALLS PSO EXHAUSTED improvement');
+                            disp('ALL PSO EXHAUSTED improvement');
                         end
                         %load last good level!
                     end
                     
 %                 end
-            else 
-                ahead = ahead + 1
             end
         end
     end
@@ -176,4 +176,6 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             end
         end
     end
+    toc
+%     best_fit
 end

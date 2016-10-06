@@ -20,14 +20,14 @@ for i = 1:numel(allfields)
         pvy = s.(char(allfields(i))){4};
         fit = s.(char(allfields(i))){5}; %=mc_fit
         r = s.(char(allfields(i))){6};
-        a = s.(char(allfields(i))){7};
+        a = s.(char(allfields(i))){7}; %aheads
         resA = s.(char(allfields(i))){8};
         resL = s.(char(allfields(i))){9};
         psoInc = s.(char(allfields(i))){10};
         psoParticles = s.(char(allfields(i))){11};
         time = s.(char(allfields(i))){12};
 
-        %aheads = [aheads; a];
+        aheads = [aheads; a];
         if(numel(r) > 1)
             reasons = [reasons; r(1)];
         else
@@ -47,8 +47,8 @@ for i = 1:numel(allfields)
 
         getIndex = find(fit(:,end)==lowest);
 
-%         figure
-%         disp_flock(px{getIndex}(end,:),py{getIndex}(end,:),pvx{getIndex}(end,:),pvy{getIndex}(end,:));
+        figure
+        disp_flock(px{getIndex}(end,:),py{getIndex}(end,:),pvx{getIndex}(end,:),pvy{getIndex}(end,:));
 
         numberOfPos = sum(all(allLowest<0.009,2))
     end
