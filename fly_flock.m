@@ -53,7 +53,7 @@ options = optimoptions('particleswarm','SwarmSize', particles,'UseParallel',fals
         % check if the next level is reached
             if last_fit~=Inf && (last_fit-fitness>=level_dist)
                 last_fit = fitness;
-                level_dist = ((last_fit-fitness)/level)/2; %level_dist/10;
+                level_dist = level_dist/2;%((last_fit-fitness)/level)/2; %level_dist/10;
                 improved = 1;
 %                 break;
             end

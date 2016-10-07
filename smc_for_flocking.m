@@ -8,7 +8,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     dmin = 1; % allowed minimum distance between the birds
     [x,y,vx,vy] = flock(0,Numb,steps,init_box,dmin); %initialize the flock
     % K = 1; % steps until the next level
-    stop = 0.0001; % stopping criterion
+    stop = 0.001; % stopping criterion
     numPart = 20; % number of simulations
     numLevels = 20; % total number of levels
     maxAhead = 5; % number of maximum lookaheads before we resample if we couldnt find a new  level
@@ -177,5 +177,5 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
         end
     end
     toc
-%     best_fit
+    best_fit
 end
