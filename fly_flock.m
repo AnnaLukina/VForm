@@ -1,5 +1,5 @@
 %% flying the flock
-    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist,particles,level)
+    function [last_fit,level_dist,improved] = fly_flock(best_fit,level_dist,particles,level,numLevels)
 global x y vx vy Numb r_vax r_vay
 nvars = Numb*2;
 last_fit = best_fit;
@@ -41,7 +41,7 @@ options = optimoptions('particleswarm','SwarmSize', particles,'UseParallel',fals
     %if t>1 
         % define fixed levels based on fitness
         if level_dist==Inf && fitness~=Inf
-            level_dist = fitness/100;
+            level_dist = fitness/(numLevels-level);
         end
         % store last fitness obtained
 %         if fitness(t)<last_fit
@@ -53,7 +53,7 @@ options = optimoptions('particleswarm','SwarmSize', particles,'UseParallel',fals
         % check if the next level is reached
             if last_fit~=Inf && (last_fit-fitness>=level_dist)
                 last_fit = fitness;
-                level_dist = level_dist/2;%((last_fit-fitness)/level)/2; %level_dist/10;
+                level_dist = last_fit/(numLevels-level);%((last_fit-fitness)/level)/2; %level_dist/10;
                 improved = 1;
 %                 break;
             end
