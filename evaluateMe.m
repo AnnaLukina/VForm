@@ -8,7 +8,8 @@ allTimes = zeros(0,0);
 % numPart = 10;
 % numLevels = 20; %each step is level?
 
-aheads = zeros(0,0);
+aheads = cell(20,1);
+aheadStat = zeros(0,0);
 reasons = zeros(0,0);
 
 
@@ -20,14 +21,20 @@ for i = 1:numel(allfields)
         pvy = s.(char(allfields(i))){4};
         fit = s.(char(allfields(i))){5}; %=mc_fit
         r = s.(char(allfields(i))){6};
-        a = s.(char(allfields(i))){7};
+        a = s.(char(allfields(i))){7}; %aheads
         resA = s.(char(allfields(i))){8};
         resL = s.(char(allfields(i))){9};
         psoInc = s.(char(allfields(i))){10};
         psoParticles = s.(char(allfields(i))){11};
         time = s.(char(allfields(i))){12};
 
-        %aheads = [aheads; a];
+        for l=1:20
+            if length(a)<l
+                a(l)=0;
+            end
+            aheads{l} = [aheads{l} a(l)];
+        end
+        
         if(numel(r) > 1)
             reasons = [reasons; r(1)];
         else
@@ -96,3 +103,12 @@ for i = 1:numel(allfields)
 %         implay([moviename '.avi'])
 %     end
 end
+
+h=histfit(allTimes,30,'lognormal');h(1).FaceColor = 'w'; h(2).Color = 'r';
+figure;
+h=histfit(allPsoInc(allPsoInc>0),30,'lognormal');h(1).FaceColor = 'w'; h(2).Color = 'r';
+for l=1:20
+    aheadStat = [aheadStat aheads{l}'];
+end
+figure;
+hist(aheadStat,20)

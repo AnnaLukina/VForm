@@ -1,6 +1,6 @@
 %% importance splitting
 function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = smc_for_flocking()
-    global x y vx vy ahead Numb
+    global x y vx vy ahead Numb r_vax r_vay
     rng('shuffle');
     Numb = 7; % number of birds in a flock
     steps = 1; 
@@ -8,11 +8,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     dmin = 1; % allowed minimum distance between the birds
     [x,y,vx,vy] = flock(0,Numb,steps,init_box,dmin); %initialize the flock
     % K = 1; % steps until the next level
-    stop = 0.009; % stopping criterion
-    numPart = 20; % number of particles
+    stop = 0.0001; % stopping criterion
+    numPart = 20; % number of simulations
     numLevels = 20; % total number of levels
     maxAhead = 5; % number of maximum lookaheads before we resample if we couldnt find a new  level
-    
+    rng('shuffle');
     fixedPSOParticles = false;
     currentPSOParticles = 20;
     
@@ -32,10 +32,13 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
     py = cell(numPart,1);
     pvx = cell(numPart,1);
     pvy = cell(numPart,1);
+    bestVAX = zeros(0,0);
+    bestVAY = zeros(0,0);
+    sorting_indices = zeros(0,0);
     resA = 0;
     resL = 0;
     improved = zeros(numPart,1);
-    precision = .5;
+    precision = .5;%1/numPart;%.5;
     best_fit = Inf; % best fit among all the particles
     for p=1:numPart
         px{p} = x;
@@ -62,12 +65,17 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             y = py{p}(end,:);
             vx = pvx{p}(end,:);
             vy = pvy{p}(end,:);
-            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p),currentPSOParticles);
+            [fit_level(p),level_dist(p),improved(p)] = fly_flock(fit_level(p),level_dist(p)...
+                ,currentPSOParticles,level,numLevels);
             if level==1 || improved(p)       
                 px{p} = [px{p}; x];
                 py{p} = [py{p}; y];
                 pvx{p} = [pvx{p}; vx];
                 pvy{p} = [pvy{p}; vy];
+                if fit_level(p) < best_fit
+                    bestVAX(level,:) = r_vax;
+                    bestVAY(level,:) = r_vay;
+                end
             end
         end
         if min(fit_level)<best_fit
@@ -87,6 +95,7 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             level = level+1;
             % resample bad particles from top positions
             [sort_fit,sort_ind]= sort(fit_level,'ascend');
+            sorting_indices = [sorting_indices sort_ind];
             L=numPart*precision;
             top_pos = sort_ind(1:L);
             bad_pos = sort_ind(L+1:numPart);
@@ -103,9 +112,11 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
                 level_dist(bad_pos(r)) = level_dist(top_pos(pos));
                 fit_level(bad_pos(r)) = fit_level(top_pos(pos));
             end
-            tic
+%             tic
         else
-             if ahead > maxAhead %we reached max aheed
+            if ahead < maxAhead 
+                ahead = ahead + 1
+            else %we reached max aheed
 %                 if (sum(improved) >= numPart*.2) % some configs have improved and we resample
 %                     'resampling'
 %                     resA = resA + 1;
@@ -139,14 +150,12 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
                             currentPSOParticles = currentPSOParticles + incrementPSOParticles;
                             PSOInc = PSOInc + 1;
                         else
-                            disp('ALLS PSO EXHAUSTED improvement');
+                            disp('ALL PSO EXHAUSTED improvement');
                         end
                         %load last good level!
                     end
                     
 %                 end
-            else 
-                ahead = ahead + 1
             end
         end
     end
@@ -168,4 +177,6 @@ function [px,py,pvx,pvy,mc_fit,reason,aheads,resA,resL,PSOInc, psoParticles] = s
             end
         end
     end
+    toc
+    best_fit
 end
